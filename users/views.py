@@ -19,7 +19,7 @@ class UserList(generics.GenericAPIView, mixins.ListModelMixin):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('first_name', 'last_name', 'email',)
+    search_fields = ('full_name', 'email',)
 
     def get(self, request):
         return self.list(request)
@@ -123,4 +123,3 @@ class ChangePasswordView(generics.UpdateAPIView):
             }
             return Response(response)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        

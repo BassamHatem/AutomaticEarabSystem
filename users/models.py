@@ -61,26 +61,24 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 class Student(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, verbose_name="User", on_delete=models.CASCADE,
                                 related_name='student', null=False)
-    first_name = models.CharField(max_length=20)
-    last_name = models.CharField(max_length=20)
+    full_name = models.CharField(max_length=50)
     profile_image = models.ImageField(default='default.jpg', upload_to='profile_pics')
     grade = models.CharField(max_length=50, null=True)
 
     def __str__(self):
-        return self.first_name + " " + self.last_name
+        return self.full_name
 
 
 class Teacher(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, verbose_name="User", on_delete=models.CASCADE,
                                 related_name='teacher', null=False)
-    first_name = models.CharField(max_length=20)
-    last_name = models.CharField(max_length=20)
+    full_name = models.CharField(max_length=50)
     profile_image = models.ImageField(default='default.jpg', upload_to='profile_pics')
     expertise = models.CharField(max_length=200, null=True)
     rating = models.DecimalField(max_digits=5, decimal_places=3, default=0)
 
     def __str__(self):
-        return self.first_name + " " + self.last_name
+        return self.full_name
 
 
 @receiver(reset_password_token_created)
