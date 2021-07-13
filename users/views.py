@@ -6,7 +6,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser, I
 from rest_framework.response import Response
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from .models import Student, Teacher
-from .serializers import UserSerializer, UserDetailsSerializer, StudentSerializer, TeacherSerializer, ChangePasswordSerializer
+from .serializers import UserSerializer, StudentSerializer, TeacherSerializer, ChangePasswordSerializer, TeacherRegistrationSerializer, StudentRegistrationSerializer
 from .models import User
 from .permissions import UpdateProfile
 from django.urls import reverse
@@ -25,22 +25,6 @@ class UserList(generics.GenericAPIView, mixins.ListModelMixin):
         return self.list(request)
 
 
-class UserDetails(generics.GenericAPIView, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin):
-    queryset = User.objects.all()
-    serializer_class = UserDetailsSerializer
-    permission_classes = (UpdateProfile,)
-    lookup_field = 'id'
-
-    def get(self, request, id):
-        return self.retrieve(request, id=id)
-
-    def put(self, request, id):
-        return self.update(request, id=id)
-
-    def delete(self, request, id):
-        return self.destroy(request, id=id)
-
-
 class StudentList(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
@@ -57,32 +41,59 @@ class TeacherList(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateM
         return self.list(request)
 
 
-class RegistrationView(generics.GenericAPIView):
-    serializer_class = UserSerializer
+class StudentDetails(generics.GenericAPIView, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+    permission_classes = (UpdateProfile,)
+    lookup_field = 'id'
+
+    def get(self, request, id):
+        return self.retrieve(request, id=id)
+
+    def put(self, request, id):
+        return self.update(request, id=id)
+
+    def delete(self, request, id):
+        return self.destroy(request, id=id)
+
+
+class TeacherDetails(generics.GenericAPIView, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin):
+    queryset = Teacher.objects.all()
+    serializer_class = TeacherSerializer
+    permission_classes = (UpdateProfile,)
+    lookup_field = 'id'
+
+    def get(self, request, id):
+        return self.retrieve(request, id=id)
+
+    def put(self, request, id):
+        return self.update(request, id=id)
+
+    def delete(self, request, id):
+        return self.destroy(request, id=id)
+
+
+class StudentRegistration(generics.GenericAPIView):
+    serializer_class = StudentRegistrationSerializer
 
     def post(self, request, *args, **kwargs):
         data = request.data
-        serializer = UserSerializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.validated_data['password'] = make_password(password=serializer.validated_data['password'])
-        user = serializer.save()
-        user = User.objects.get(email=serializer.validated_data['email'])
-        
-        # _mutable = data._mutable
-        # data._mutable = True
-        
-        data['user'] = user.id
-        # data._mutable = _mutable
-        
-        is_teacher = request.data.get('is_teacher', False)
-        serializer = StudentSerializer(data=data) if not is_teacher else TeacherSerializer(data=data)
+        serializer = self.serializer_class(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        return Response({
-        "user": UserSerializer(user, context=self.get_serializer_context()).data,
-        "token": AuthToken.objects.create(user)[1]
-        })
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class TeacherRegistration(generics.GenericAPIView):
+    serializer_class = TeacherRegistrationSerializer
+
+    def post(self, request):
+        data = request.data
+        serializer = self.serializer_class(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class LoginView(KnoxLoginView):

@@ -27,18 +27,6 @@ class SentenceList(generics.GenericAPIView, mixins.ListModelMixin):
         return self.list(request)
 
 
-'''
-class SentenceCreate(generics.GenericAPIView, mixins.CreateModelMixin):
-    serializer_class = NewSentenceSerializer
-
-    def post(self, request):
-        return self.create(request)
-
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-'''
-
-
 class SentenceDetails(generics.GenericAPIView, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
                       mixins.DestroyModelMixin):
     queryset = Sentence.objects.all()
@@ -54,8 +42,8 @@ class SentenceDetails(generics.GenericAPIView, mixins.RetrieveModelMixin, mixins
     def delete(self, request, id):
         return self.destroy(request, id=id)
 
-    # def perform_update(self, serializer):
-    #    serializer.save(author=self.request.user)
+    def perform_update(self, serializer):
+       serializer.save(author=self.request.user)
 
 
 class DiacritizationView(generics.GenericAPIView):
@@ -63,7 +51,7 @@ class DiacritizationView(generics.GenericAPIView):
 
     def post(self, request):
         data=request.data
-        data['author'] = Student.objects.get(user=self.request.user).id
+        data['author'] = self.request.user
         serializer = SentenceSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         DNN_input = serializer.validated_data['raw']

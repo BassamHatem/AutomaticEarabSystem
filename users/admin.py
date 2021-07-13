@@ -7,17 +7,16 @@ from users.models import User, Student, Teacher
 # Register your models here.
 @admin.register(Student)
 class StudentModel(admin.ModelAdmin):
-    list_filter = ('first_name', 'last_name')
-    list_display = ('first_name', 'last_name')
-    search_fields = ('first_name', 'last_name', 'email')
+    list_filter = ('full_name',)
+    list_display = ('full_name',)
+    search_fields = ('full_name', 'email')
 
 
 @admin.register(Teacher)
 class TeacherModel(admin.ModelAdmin):
-    list_filter = ('first_name', 'last_name')
-    list_display = ('first_name', 'last_name')
-    search_fields = ('first_name', 'last_name', 'email')
+    list_filter = ('full_name',)
+    list_display = ('full_name',)
+    search_fields = ('full_name', 'email')
 
 
-admin.site.register(User, UserAdmin)
 admin.site.unregister(Group)
